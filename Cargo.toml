@@ -1,0 +1,13 @@
+[package]
+name = "play-store-visualiser"
+version = "0.0.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lol_html = "1.2.1"
+scraper = "0.19"
+chrono = "0.4.31"
+semver = "1.0.20"
+rand = "0.8.5"
