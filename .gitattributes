@@ -1,0 +1,5 @@
+common/headers/** linguist-vendored
+common/icon.h linguist-vendored
+common/icon2.h linguist-vendored
+android/app/src/main/cpp/scripts/loop_lua.h linguist-vendored
+android/app/src/main/cpp/scripts/meshes_lua.h linguist-vendored
