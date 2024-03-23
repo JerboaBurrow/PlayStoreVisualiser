@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test_mockup
 {
-    use psv::{generate::generate_mockup, model::UserAppEntry, util::{read_file_utf8, write_file}};
+    use psv::{generate::generate_mockup, model::UserAppEntry, util::read_file_utf8};
 
     #[test]
     /// This tests for runtime errors during generation from a known input (cached in the repo)
@@ -36,13 +36,13 @@ mod test_mockup
 
         // there is something non-deterministic in the rewriting... so an
         //   equality test fails... but the generated docs look identical to the eye.
-        for i in 0..g.len()
-        {
-            if g[i] != e[i]
-            {
-                println!("{}, {}, {}", i, g[i], e[i]);
-            }
-        }
+        // for i in 0..g.len()
+        // {
+        //     if g[i] != e[i]
+        //     {
+        //         println!("{}, {}, {}", i, g[i], e[i]);
+        //     }
+        // }
 
         
     }
