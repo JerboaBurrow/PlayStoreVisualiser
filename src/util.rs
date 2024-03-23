@@ -1,4 +1,4 @@
-use std::{fs::File, io::Read};
+use std::{fs::File, io::{Read, Write}};
 
 pub fn read_file_utf8(path: &str) -> Option<String>
 {
@@ -20,4 +20,10 @@ pub fn read_file_utf8(path: &str) -> Option<String>
         },
         Ok(_) => Some(s)
     }
+}
+
+pub fn write_file(path: &str, data: &[u8])
+{
+    let mut file = File::create(path).unwrap();
+    file.write_all(data).unwrap();
 }

@@ -1,0 +1,147 @@
+name: Release
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:     'v*'
+    paths-ignore:
+      - 'doc/**'
+      - '.github/**'
+      - 'README.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'CONTRIBUTING'
+      
+  workflow_dispatch:
+
+
+jobs:
+  build_test_and_bundle:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: setup rust stable
+      run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+    - name: unit tests
+      run: |
+        cargo test --all --release
+
+    - name: bundle
+      shell: bash
+      run: |
+          mkdir psv
+          cp target/release/psv psv/psv-${{ matrix.os }}
+          cp LICENSE psv/
+
+    - name: upload bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}
+        path: psv
+
+  build_test_and_bundle_arm:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: setup rust stable
+      run: |
+        curl https://sh.rustup.rs -sSf | sh -s -- -y
+        rustup target add armv7-unknown-linux-gnueabi
+        rustup target add aarch64-unknown-linux-gnu
+        sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
+
+    - name: unit tests
+      run: |
+        cargo build --release --target armv7-unknown-linux-gnueabi
+        cargo build --release --target aarch64-unknown-linux-gnu
+
+    - name: bundle
+      shell: bash
+      run: |
+          mkdir psv-armv7
+          cp target/armv7-unknown-linux-gnueabi/release/psv psv-armv7/psv-armv7
+          cp LICENSE psv-armv7/
+            mkdir psv-aarch64
+          cp target/aarch64-unknown-linux-gnu/release/psv psv-aarch64/psv-aarch64
+          cp LICENSE psv-aarch64/
+
+    - name: upload bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: armv7
+        path: psv-armv7
+
+    - name: upload bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: aarch64
+        path: psv-aarch64
+
+  release:
+    needs: [build_test_and_bundle, build_test_and_bundle_arm]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-22.04
+    
+    steps:
+
+      - name: get linux build
+        uses: actions/download-artifact@v4
+        with:
+          name: ubuntu-20.04
+
+      - name: get windows build
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-latest
+
+      - name: get macos build
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-latest
+
+      - name: get armv7 build
+        uses: actions/download-artifact@v4
+        with:
+          name: armv7
+
+      - name: get aarch64 build
+        uses: actions/download-artifact@v4
+        with:
+          name: aarch64
+
+      - name: pack
+        run: |
+              mkdir linux windows macos armv7 aarch64
+              ls
+              mv psv-ubuntu-20.04 psv-linux-x86_64
+              for arch in linux-x86_64 macos-latest armv7 aarch64; do mv psv-$arch psv && chmod +x psv && tar -cvf psv-$arch.tar.gz psv LICENSE; done
+              
+              mv psv-macos-latest.tar.gz psv-macOS.tar.gz
+              mv psv-windows-latest.exe psv.exe
+              chmod +x psv.exe
+              zip psv-windows.zip psv.exe LICENSE
+              ls
+              
+
+  #     https://github.com/softprops/action-gh-release
+      - name: release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: true
+          name: "release-${{ github.ref_name }}"
+          tag_name: ${{ github.ref }}
+          files: |
+            psv-linux-x86_64.tar.gz
+            psv-windows.zip
+            psv-macOS.tar.gz
+            psv-armv7.tar.gz
+            psv-aarch64.tar.gz

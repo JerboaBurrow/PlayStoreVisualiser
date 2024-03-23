@@ -1,99 +1,73 @@
-use std::vec;
+use psv::{generate::generate_mockup, model::UserAppEntry, program_version, util::{read_file_utf8, write_file}};
 
-use play_store_visualiser::util::read_file_utf8;
-use scraper::{selectable::Selectable, Html, Selector};
-use lol_html::{element, HtmlRewriter, Settings};
-use rand::prelude::*;
-
-#[derive(Debug)]
-struct AppEntry
+fn get_argument(arg: &str, args: &Vec<String>, default: &str) -> String
 {
-    pub feature: String,
-    pub icon: String,
-    pub title: String,
-    pub developer: String,
-    pub rating: String
-}
-
-impl AppEntry
-{
-    pub fn new() -> AppEntry
+    if args.iter().any(|x| x == &arg)
     {
-        AppEntry
+        let index = args.iter().position(|a| a == arg).unwrap();
+
+        if index < args.len()
         {
-            feature: String::new(),
-            icon: String::new(),
-            title: String::new(),
-            developer: String::new(),
-            rating: String::new()
+            args.get(index+1).unwrap().clone()
         }
+        else
+        {
+            default.to_string()
+        }
+    }
+    else
+    {
+        default.to_string()
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>>
+#[tokio::main]
+async fn main()
 {
 
-    let mut replaced = 0;
-
-    let html = read_file_utf8("tests/example.html").unwrap();
-
-    let selector = Selector::parse(r#"div[role="listitem"]"#).unwrap();
-    let img_icon = Selector::parse(r#"img[alt="Thumbnail image"]"#).unwrap();
-    let img_feature = Selector::parse(r#"img[alt="Screenshot image"]"#).unwrap();
-    let span = Selector::parse(r#"span"#).unwrap();
-
-    let document = Html::parse_document(&html);
-    let mut apps: Vec<AppEntry> = vec![];
-
-    for element in document.select(&selector)
+    let args: Vec<String> = std::env::args().collect();
+ 
+    if args.iter().any(|x| x == "-v")
     {
-        let features: Vec<_> = element.select(&img_feature).collect();
-        let icons: Vec<_> = element.select(&img_icon).collect();
-        let spans: Vec<_> = element.select(&span).collect();
-
-        println!("{}, {}, {}", features.len(), icons.len(), spans.len());
-
-        if features.len() == 1 && icons.len() == 1 && spans.len() >= 2
-        {
-            // this is a valid play store item
-            let feature = features.first().unwrap();
-            let icon = icons.first().unwrap();
-            let s = spans;
-
-            let mut entry = AppEntry::new();
-
-            entry.feature = feature.attr("src").unwrap().to_string();
-            entry.icon = icon.attr("src").unwrap().to_string();
-            entry.title = s[0].inner_html();
-            entry.developer = s[1].inner_html();
-            entry.rating = if s.len() >= 2 { s[2].inner_html() } else { " ".to_string() };
-            println!("Found: {:?}", entry);
-
-            apps.push(entry);
-
-        }
+        println!("Version: {}", program_version());
+        std::process::exit(0);
     }
 
-    let mut output = vec![];
+    let feature = get_argument("-feature", &args, "FEATURE");
+    let icon = get_argument("-icon", &args, "ICON");
+    let title = get_argument("-title", &args, "TITLE");
+    let dev = get_argument("-developer", &args, "DEVELOPER");
+    let stars = get_argument("-stars", &args, "RATING");
+    let link = get_argument("-link", &args, "APP_LINK");
+    let position: usize = match get_argument("-position", &args, "3").parse::<usize>()
+    {
+        Ok(p) => {p+2},
+        Err(e) => {println!("-position must be a positive integer\n{}", e); std::process::exit(1);}
+    };
+
+    let query = get_argument("-query", &args, "particles");
+
+    // get a live example from the Play Store
+    let html = reqwest::get(format!("https://play.google.com/store/search?q={}&c=apps",query))
+    .await.unwrap()
+    .text()
+    .await.unwrap();
     
-
-    let mut rewriter = HtmlRewriter::new(
-        Settings {
-            element_content_handlers: vec![
-                element!(r#"img[alt="Thumbnail image"]"#, |el| {
-                    replaced += 1;
-                    println!("{}", replaced);
-                    el.set_attribute("src", "SRC")?;
-                    Ok(())
-                })
-            ],
-            ..Settings::default()
-        },
-        |c: &[u8]| output.extend_from_slice(c)
+    let app = UserAppEntry::new
+    (
+        &feature, &icon, &title, &dev, &stars, &link
     );
-    rewriter.write(html.as_bytes())?;
-    rewriter.end()?;
-    //println!("{}",String::from_utf8(output).unwrap());
 
-    Ok(())
+    let generated = match generate_mockup
+    (
+        html, 
+        app,
+        Some(position)
+    )
+    {
+        Ok(g) => g,
+        Err(e) => {println!("{}", e); std::process::exit(1);}
+    };
+
+    write_file("mockup.html", generated.as_bytes());
 }
