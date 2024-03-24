@@ -7,6 +7,10 @@ edition = "2021"
 name = "psv"
 path = "src/main.rs"
 
+[[bin]]
+name = "psv-server"
+path = "src/main-server.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -16,5 +20,10 @@ scraper = "0.19"
 chrono = "0.4.31"
 semver = "1.0.20"
 rand = "0.8.5"
+regex = "1.10.2"
 reqwest = { version = "0.11", features = ["json"] }
 openssl = { version = "0.10", features = ["vendored"] }
+axum = "0.6.20"
+axum-server = { version = "0.3", features = ["tls-rustls"] }
+serde = {version="1.0", features=["derive"]}
+serde_json = "1.0"

@@ -3,6 +3,7 @@ use semver::{BuildMetadata, Prerelease, Version};
 pub mod util;
 pub mod model;
 pub mod generate;
+pub mod server;
 
 const MAJOR: &str = env!("CARGO_PKG_VERSION_MAJOR");
 const MINOR: &str = env!("CARGO_PKG_VERSION_MINOR");
