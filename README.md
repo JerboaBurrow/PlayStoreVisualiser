@@ -6,16 +6,14 @@
 
 ---
 
-___
 Desktop
 
 [![Linux x86_64](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-linux.yml/badge.svg)](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-linux.yml) [![macOS](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-macos.yml/badge.svg)](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-macos.yml) [![Windows](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-windows.yml/badge.svg)](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-windows.yml) 
-___
+---
 Arm (e.g. Rhaspberry Pi, check with ```uname --machine``` on you Pi
 
 [![aarch64](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-aarch64.yml/badge.svg)](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-aarch64.yml) [![armv7](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-armv7.yml/badge.svg)](https://github.com/JerboaBurrow/PlayStoreVisualiser/actions/workflows/build-and-test-armv7.yml)
-___
-
+---
 ### Features
 
 - Generate a mockup from real Play Store data
