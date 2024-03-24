@@ -195,8 +195,6 @@ pub fn generate_mockup
 
     let mut index: usize = 0;
 
-    println!("{}, {}", replacement_index, apps.len());
-
     // replace the replacement_index'th app html with the re-written version
     let mut rewriter = HtmlRewriter::new(
         Settings {
