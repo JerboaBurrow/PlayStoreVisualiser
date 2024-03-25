@@ -19,7 +19,7 @@ use axum::
 /// An http redirect server 
 /// # Example
 /// ```no_run
-/// use busser::server::http::ServerHttp;
+/// use psv::server::http::ServerHttp;
 /// use tokio::task::spawn;
 /// #[tokio::main]
 /// async fn main() 

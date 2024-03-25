@@ -21,11 +21,11 @@ use super::api::{ApiRequest, Generate};
 /// ```.html``` pages and resources, then serves them.
 /// # Example
 /// ```no_run
-/// use busser::server::https::Server;
+/// use psv::server::https::Server;
 /// #[tokio::main]
 /// async fn main() 
 /// {
-///     let server = Server::new(0,0,0,0,true);
+///     let server = Server::new(0,0,0,0);
 ///     server.serve().await;
 /// }
 /// ```
