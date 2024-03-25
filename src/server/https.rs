@@ -15,7 +15,7 @@ use axum::
 };
 use axum_server::tls_rustls::RustlsConfig;
 
-use super::api::{ApiRequest, Generate};
+use super::{api::{ApiRequest, Generate}, filter_cors_preflight};
 
 /// An https server that reads a directory configured with [Config]
 /// ```.html``` pages and resources, then serves them.
@@ -87,6 +87,7 @@ impl Server
 
         router = router.layer(middleware::from_fn_with_state(throttle_state.clone(), handle_throttle));
         router = router.layer(middleware::from_fn(Generate::filter));
+        router = router.layer(middleware::from_fn(filter_cors_preflight));
 
         Server
         {

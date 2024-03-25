@@ -1,9 +1,11 @@
-use axum::{body::Bytes, http::HeaderMap};
+use axum::{body::Bytes, http::{HeaderMap, Request}, middleware::Next, response::{IntoResponse, Response}};
 use openssl::{hash::MessageDigest, memcmp, pkey::PKey, sign::Signer};
 use regex::Regex;
 use reqwest::StatusCode;
 
 use crate::util::{dump_bytes, read_bytes};
+
+use self::config::read_config;
 
 pub mod http;
 pub mod https;
@@ -11,6 +13,50 @@ pub mod config;
 pub mod throttle;
 pub mod api;
 
+async fn filter_cors_preflight<B>
+(
+    headers: HeaderMap,
+    request: Request<B>,
+    next: Next<B>
+) -> Result<Response, StatusCode>
+where B: axum::body::HttpBody<Data = Bytes>
+{
+
+    match headers.contains_key("Access-Control-Request-Headers")
+    {
+        false => return Ok(next.run(request).await),
+        true => {}
+    }
+
+    let config = match read_config()
+    {
+        Some(c) => c,
+        None =>
+        {
+            return Ok(StatusCode::INTERNAL_SERVER_ERROR.into_response());
+        }
+    };
+
+    match config.cors_allow_address
+    {
+        Some(a) =>
+        {
+            let mut response = String::new().into_response();
+            response.headers_mut().insert("Access-Control-Allow-Origin", format!("{}",a).parse().unwrap());
+            response.headers_mut().insert("Access-Control-Allow-Methods", "POST".parse().unwrap());
+            response.headers_mut().insert("Access-Control-Allow-Headers", "api, content-type".parse().unwrap());
+        
+            Ok(response)
+        },
+        None =>
+        {
+            Ok(StatusCode::FORBIDDEN.into_response())
+        }
+    }
+    
+
+    
+}
 /// Uses openssl to verify the request body via the given hmac_token
 ///   - hmac_header_key is the location in the https header for the digest
 pub fn is_authentic

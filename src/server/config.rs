@@ -25,8 +25,9 @@ pub struct ThrottleConfig
 /// - ```key_path```: ssl key
 /// - ```domain```: domain name for https redirect etc.
 /// - ```throttle```: [ThrottleConfig]
-/// - ```api_token```: token to use for the server's POST api
+/// - ```api_token```: optional token to use for the server's POST api
 /// - ```cache_period_seconds```: max cache age for generated content
+/// - ```cors_allow_address```: allowed address for cross origin request, leave blank to block
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Config
 {
@@ -36,8 +37,9 @@ pub struct Config
     pub key_path: String,
     pub domain: String,
     pub throttle: ThrottleConfig,
-    pub api_token: String,
-    pub cache_period_seconds: u16
+    pub api_token: Option<String>,
+    pub cache_period_seconds: u16,
+    pub cors_allow_address: Option<String>
 }
 
 pub fn read_config() -> Option<Config>

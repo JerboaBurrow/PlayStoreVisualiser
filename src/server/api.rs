@@ -3,6 +3,7 @@ use std::str::from_utf8;
 use axum::{
     body::Bytes, http::{HeaderMap, Request}, middleware::Next, response::{Html, IntoResponse, Response}
 };
+use openssl::conf;
 use reqwest::StatusCode;
 use serde::Deserialize;
 
@@ -87,13 +88,20 @@ impl ApiRequest for Generate
             }
         };
 
-        is_authentic
-        (
-            headers, 
-            "psv-token", 
-            config.api_token, 
-            body
-        )
+        match config.api_token
+        {
+            Some(t) =>
+            {
+                is_authentic
+                (
+                    headers, 
+                    "psv-token", 
+                    t, 
+                    body
+                )
+            },
+            None => StatusCode::ACCEPTED
+        }
     }
 
     fn deserialise_payload(&mut self, _headers: HeaderMap, body: Bytes) -> StatusCode
@@ -239,6 +247,16 @@ impl ApiRequest for Generate
                 let time_stamp = chrono::offset::Utc::now().to_rfc3339();
                 response.headers_mut().insert("date", time_stamp.parse().unwrap());
                 response.headers_mut().insert("cache-control", format!("public, max-age={}", config.cache_period_seconds).parse().unwrap());
+                
+                match config.cors_allow_address
+                {
+                    Some(a) => 
+                    {
+                        response.headers_mut().insert("Access-Control-Allow-Origin", format!("{}",a).parse().unwrap());
+                        response.headers_mut().insert("Access-Control-Allow-Methods", "POST".parse().unwrap());
+                    },
+                    None => {}
+                }
                 Ok(response)
             },
             None => { Err(status) }
