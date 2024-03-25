@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug)]
 /// A model of the Google Play App store's listitem children
 ///  ```feature```: feature image url
@@ -60,7 +62,7 @@ impl AppEntry
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 /// A model of a mockup Google Play store's listitem child
 ///  ```feature_link```: feature image url
 /// ```icon_link```: icon image url
