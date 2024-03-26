@@ -69,11 +69,11 @@ jobs:
       run: |
           mkdir psv-armv7
           cp target/armv7-unknown-linux-gnueabi/release/psv psv-armv7/psv-armv7
-          cp target/armv7-unknown-linux-gnueabi/release/psv-server psv-server-armv7/psv-armv7
+          cp target/armv7-unknown-linux-gnueabi/release/psv-server psv-armv7/psv-server-armv7
           cp LICENSE psv-armv7/
             mkdir psv-aarch64
           cp target/aarch64-unknown-linux-gnu/release/psv psv-aarch64/psv-aarch64
-          cp target/aarch64-unknown-linux-gnu/release/psv-server psv-server-aarch64/psv-aarch64
+          cp target/aarch64-unknown-linux-gnu/release/psv-server psv-aarch64/psv-server-aarch64
           cp LICENSE psv-aarch64/
 
     - name: upload bundle
