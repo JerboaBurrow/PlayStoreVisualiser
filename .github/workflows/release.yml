@@ -126,7 +126,7 @@ jobs:
               ls
               mv psv-ubuntu-20.04 psv-linux-x86_64
               mv psv-server-ubuntu-20.04 psv-server-linux-x86_64
-              for arch in linux-x86_64 macos-latest armv7 aarch64; do mv psv-$arch psv && psv-server-$arch psv-server && chmod +x psv && tar -cvf psv-$arch.tar.gz psv LICENSE; done
+              for arch in linux-x86_64 macos-latest armv7 aarch64; do mv psv-$arch psv && mv psv-server-$arch psv-server && chmod +x psv && chmod +x psv-server && tar -cvf psv-$arch.tar.gz psv psv-server LICENSE; done
               
               mv psv-macos-latest.tar.gz psv-macOS.tar.gz
               mv psv-windows-latest.exe psv.exe
