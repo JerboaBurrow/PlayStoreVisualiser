@@ -81,6 +81,7 @@ pub fn generate_mockup
     let img_icon = Selector::parse(r#"img[alt="Thumbnail image"]"#).unwrap();
     let img_feature = Selector::parse(r#"img[alt="Screenshot image"]"#).unwrap();
     let span = Selector::parse(r#"span"#).unwrap();
+    let svg = Selector::parse("svg").unwrap();
     let href = Selector::parse(r#"a"#).unwrap();
 
     let document = Html::parse_document(&html);
@@ -105,13 +106,17 @@ pub fn generate_mockup
             let s = spans;
             let h = hrefs.first().unwrap();
 
+            let element_spans: Vec<_> = s[0].select(&svg).collect();
+            let first_span = if element_spans.len() > 0 {1} else {0};
+
             let mut entry = AppEntry::new();
 
             entry.feature = feature.attr("src").unwrap().to_string();
             entry.icon = icon.attr("src").unwrap().to_string();
-            entry.title = s[0].inner_html();
-            entry.developer = s[1].inner_html();
-            entry.rating = if s.len() >= 2 { s[2].inner_html() } else { " ".to_string() };
+
+            entry.title = s[0+first_span].inner_html();
+            entry.developer = s[1+first_span].inner_html();
+            entry.rating = if s.len() >= 2+first_span { s[2+first_span].inner_html() } else { " ".to_string() };
             entry.link = h.attr("href").unwrap().to_string();
             entry.html = scraper::ElementRef::wrap(element.first_child().unwrap()).unwrap().html();
             apps.push(entry);
@@ -123,6 +128,8 @@ pub fn generate_mockup
     }
 
     let selected_app: &AppEntry = apps.first().unwrap();
+
+    crate::debug(format!("{:?}", selected_app), None);
 
     let feature_pattern = "img[src=\"".to_string()+selected_app.feature.as_str()+"\"]";
     let icon_pattern = "img[src=\"".to_string()+selected_app.icon.as_str()+"\"]";
@@ -184,13 +191,13 @@ pub fn generate_mockup
 
     let mut generated_page = vec![];
 
-    let replacement_index = if position.is_some_and(|p| (3..apps.len()).contains(&p))
+    let replacement_index = if position.is_some_and(|p| (0..apps.len()).contains(&p))
     {
         position.unwrap() + skip
     }
     else
     {
-        3 + (random::<usize>() % (apps.len()-3)) + skip
+        (random::<usize>() % (apps.len())) + skip
     };
 
     let mut index: usize = 0;
@@ -223,8 +230,14 @@ pub fn generate_mockup
         Err(e) => {return Err(MockupError{ why: format!("{}",e)})}
     }
 
-    let page = match String::from_utf8(generated_page) {
+    let mut page = match String::from_utf8(generated_page) {
         Ok(gen) => {gen},
+        Err(e) => {return Err(MockupError{ why: format!("{}",e)})}
+    };
+
+    let page = match strip_script(page)
+    {
+        Ok(p) => p,
         Err(e) => {return Err(MockupError{ why: format!("{}",e)})}
     };
 
@@ -261,10 +274,43 @@ pub fn insert_ribbon(html: String, text: &str) -> Result<String, MockupError>
             element_content_handlers: vec![
                 element!("head", |el| {
                     el.prepend(ribbon_style, ContentType::Html);
+                    el.prepend("<base target=\"_blank\">", ContentType::Html);
                     Ok(())
                 }),
                 element!("header[role=\"banner\"]", |el| {
                     el.prepend(&format!("<a href=\"https://github.com/JerboaBurrow/PlayStoreVisualiser\"><div class=\"ribbon\">{}{}</div></a>",text, img_ribbon)  , ContentType::Html);
+                    Ok(())
+                })
+            ],
+            ..Settings::default()
+        },
+        |c: &[u8]| output.extend_from_slice(c)
+    );
+
+    match rewriter.write(html.as_bytes()) {
+        Ok(_) => {},
+        Err(e) => {return Err(MockupError{ why: format!("{}",e)})}
+    }
+
+    match rewriter.end() {
+        Ok(_) => {},
+        Err(e) => {return Err(MockupError{ why: format!("{}",e)})}
+    }
+
+    match String::from_utf8(output) {
+        Ok(gen) => {Ok(gen)},
+        Err(e) => {return Err(MockupError{ why: format!("{}",e)})}
+    }
+}
+
+pub fn strip_script(html: String) -> Result<String, MockupError>
+{
+    let mut output = vec![];
+    let mut rewriter = HtmlRewriter::new(
+        Settings {
+            element_content_handlers: vec![
+                element!("script", |el| {
+                    el.remove();
                     Ok(())
                 })
             ],

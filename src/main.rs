@@ -39,9 +39,9 @@ async fn main()
     let dev = get_argument("-developer", &args, "DEVELOPER");
     let stars = get_argument("-stars", &args, "RATING");
     let link = get_argument("-link", &args, "APP_LINK");
-    let position: usize = match get_argument("-position", &args, "3").parse::<usize>()
+    let position: usize = match get_argument("-position", &args, "0").parse::<usize>()
     {
-        Ok(p) => {p+2},
+        Ok(p) => {p},
         Err(e) => {println!("-position must be a positive integer\n{}", e); std::process::exit(1);}
     };
 

@@ -156,8 +156,8 @@ impl ApiRequest for Generate
 
         let position = match self.payload.position
         {
-            Some(p) => p+2,
-            None => 3
+            Some(p) => p,
+            None => 0
         };
 
         crate::debug(format!("Generating from\n {:?}\n{}", self.payload.app.clone(), position), None);
