@@ -37,6 +37,7 @@ jobs:
       run: |
           mkdir psv
           cp target/release/psv psv/psv-${{ matrix.os }}
+          cp target/release/psv-server psv/psv-server-${{ matrix.os }}
           cp LICENSE psv/
 
     - name: upload bundle
@@ -68,9 +69,11 @@ jobs:
       run: |
           mkdir psv-armv7
           cp target/armv7-unknown-linux-gnueabi/release/psv psv-armv7/psv-armv7
+          cp target/armv7-unknown-linux-gnueabi/release/psv-server psv-server-armv7/psv-armv7
           cp LICENSE psv-armv7/
             mkdir psv-aarch64
           cp target/aarch64-unknown-linux-gnu/release/psv psv-aarch64/psv-aarch64
+          cp target/aarch64-unknown-linux-gnu/release/psv-server psv-server-aarch64/psv-aarch64
           cp LICENSE psv-aarch64/
 
     - name: upload bundle
@@ -122,12 +125,13 @@ jobs:
               mkdir linux windows macos armv7 aarch64
               ls
               mv psv-ubuntu-20.04 psv-linux-x86_64
-              for arch in linux-x86_64 macos-latest armv7 aarch64; do mv psv-$arch psv && chmod +x psv && tar -cvf psv-$arch.tar.gz psv LICENSE; done
+              mv psv-server-ubuntu-20.04 psv-server-linux-x86_64
+              for arch in linux-x86_64 macos-latest armv7 aarch64; do mv psv-$arch psv && psv-server-$arch psv-server && chmod +x psv && tar -cvf psv-$arch.tar.gz psv LICENSE; done
               
               mv psv-macos-latest.tar.gz psv-macOS.tar.gz
               mv psv-windows-latest.exe psv.exe
-              chmod +x psv.exe
-              zip psv-windows.zip psv.exe LICENSE
+              mv psv-server-windows-latest.exe psv-server.exe
+              zip psv-windows.zip psv.exe psv-server.exe LICENSE
               ls
               
 
