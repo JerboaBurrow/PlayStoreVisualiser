@@ -17,3 +17,7 @@
 
 - Web-server frontend
 - "Hero" app listings, where one app takes the majority of screenspace, e.g. [Minecraft](https://play.google.com/store/search?q=Minecraft&c=apps&hl=en&gl=US) or [Stardew Valley](https://play.google.com/store/search?q=Stardew&c=apps&hl=en&gl=US)
+
+### License
+
+The *source code* is released under the [GPL v3](https://github.com/JerboaBurrow/PlayStoreVisualiser/blob/main/LICENSE). For clarity *outputs from PSV*, the materials and mockups produced by PSV, are not effected by the license to the source code. For additional clarity, if copyright and licensing can be applied to program outputs, all PSV outputs are released [CC0](https://creativecommons.org/public-domain/cc0/) 
