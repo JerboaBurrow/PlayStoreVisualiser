@@ -20,4 +20,4 @@
 
 ### License
 
-The *source code* is released under the [GPL v3](https://github.com/JerboaBurrow/PlayStoreVisualiser/blob/main/LICENSE). For clarity *outputs from PSV*, the materials and mockups produced by PSV, are not effected by the license to the source code. For additional clarity, if copyright and licensing can be applied to program outputs, all PSV outputs are released [CC0](https://creativecommons.org/public-domain/cc0/) 
+The *source code* is released under the [GPL v3](https://github.com/JerboaBurrow/PlayStoreVisualiser/blob/main/LICENSE). For clarity *outputs from PSV*, the materials and mockups produced by PSV, are not effected by the license to the source code. For additional clarity, if copyright and licensing can be applied to program outputs, all PSV outputs are released [CC0](https://creativecommons.org/public-domain/cc0/). Google Play branding and materials are property of Google LLC and have no afiliation with PSV. 
